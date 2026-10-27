@@ -1,0 +1,17 @@
+---
+import { SITE_TITLE } from '../consts';
+import { hasPosts } from '../lib';
+
+const showRss = await hasPosts();
+const year = new Date().getFullYear();
+---
+
+<footer class="mx-auto mt-32 w-full max-w-6xl px-4 py-10 text-sm text-slate sm:px-8">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <p>&copy; {year} {SITE_TITLE}</p>
+    <ul class="flex gap-6">
+      {showRss && <li><a class="hover:text-ink" href="/rss.xml">RSS</a></li>}
+      <li><a class="hover:text-ink" href="https://github.com/tesseriumlabs">GitHub</a></li>
+    </ul>
+  </div>
+</footer>

@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts } from '../../lib';
+
+const posts = await getPosts();
+---
+
+<BaseLayout
+  title="Blog"
+  description="Notes, updates and write-ups from Tesserium Labs."
+  noindex={posts.length === 0}
+>
+  <header class="pt-10 pb-12 sm:pt-16">
+    <h1 class="text-[clamp(2.2rem,5vw,3.5rem)] leading-none font-light tracking-[-0.03em]">Blog</h1>
+    <p class="mt-4 max-w-[50ch] text-lg text-slate">
+      Notes, updates and write-ups from the team.
+    </p>
+  </header>
+  <PostList posts={posts} />
+</BaseLayout>

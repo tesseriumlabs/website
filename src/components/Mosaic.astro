@@ -1,0 +1,114 @@
+---
+// Full-bleed hero background: a grid of small square cells drawn on a canvas.
+// Cells under the pointer (mouse or dragging finger) light up white, their
+// neighbours glow, and everything fades back to rest. A sparse, faint pattern
+// of resting cells gives the grid texture. Purely decorative.
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<canvas class:list={['mosaic pointer-events-none absolute inset-0 h-full w-full', className]} aria-hidden="true"
+></canvas>
+
+<style>
+  /* Fade the grid into the black page at the top and bottom edges. */
+  .mosaic {
+    mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 72%, transparent);
+  }
+</style>
+
+<script>
+  const CELL = 18; // cell size in CSS px
+  const GAP = 2; // gap between cells in CSS px
+  const STEP = CELL + GAP;
+  const BASE = 14; // idle cell grey level (0-255)
+  const REST = 0.07; // intensity of the faint resting cells
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DECAY = reduceMotion ? 0.8 : 0.955; // per-frame fade multiplier
+
+  // Deterministic pseudo-random value per cell, so the resting pattern is stable.
+  const hash = (x: number, y: number) => {
+    let h = (x * 374761393 + y * 668265263) | 0;
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
+  };
+
+  document.querySelectorAll<HTMLCanvasElement>('canvas.mosaic').forEach((canvas) => {
+    const host = canvas.parentElement!;
+    const ctx = canvas.getContext('2d')!;
+    let cols = 0;
+    let rows = 0;
+    let offsetX = 0;
+    let offsetY = 0;
+    let rest = new Float32Array(0);
+    let level = new Float32Array(0);
+    let frame = 0;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const i = r * cols + c;
+          const v = Math.max(level[i], rest[i]);
+          const g = Math.round(BASE + (255 - BASE) * v);
+          ctx.fillStyle = `rgb(${g},${g},${g})`;
+          ctx.fillRect(offsetX + c * STEP, offsetY + r * STEP, CELL, CELL);
+        }
+      }
+    };
+
+    const tick = () => {
+      let active = false;
+      for (let i = 0; i < level.length; i++) {
+        if (level[i] > 0.004) {
+          level[i] *= DECAY;
+          active = true;
+        } else level[i] = 0;
+      }
+      draw();
+      frame = active ? requestAnimationFrame(tick) : 0;
+    };
+
+    const resize = () => {
+      const { width, height } = host.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      cols = Math.ceil(width / STEP) + 1;
+      rows = Math.ceil(height / STEP) + 1;
+      // Centre the grid so partial cells are even on both edges.
+      offsetX = (width - (cols * STEP - GAP)) / 2;
+      offsetY = (height - (rows * STEP - GAP)) / 2;
+      rest = new Float32Array(cols * rows);
+      level = new Float32Array(cols * rows);
+      for (let r = 0; r < rows; r++)
+        for (let c = 0; c < cols; c++) if (hash(c, r) < 0.06) rest[r * cols + c] = REST;
+      draw();
+    };
+
+    const bump = (c: number, r: number, v: number) => {
+      if (c < 0 || r < 0 || c >= cols || r >= rows) return;
+      const i = r * cols + c;
+      level[i] = Math.max(level[i], v);
+    };
+
+    const onMove = (e: PointerEvent) => {
+      const box = canvas.getBoundingClientRect();
+      const c = Math.floor((e.clientX - box.left - offsetX) / STEP);
+      const r = Math.floor((e.clientY - box.top - offsetY) / STEP);
+      bump(c, r, 1);
+      bump(c + 1, r, 0.4);
+      bump(c - 1, r, 0.4);
+      bump(c, r + 1, 0.4);
+      bump(c, r - 1, 0.4);
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+
+    new ResizeObserver(resize).observe(host);
+    host.addEventListener('pointermove', onMove);
+    host.addEventListener('pointerdown', onMove);
+  });
+</script>

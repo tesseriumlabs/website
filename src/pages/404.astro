@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page not found" noindex>
+  <section class="pt-16 pb-10">
+    <h1 class="text-[clamp(2.2rem,5vw,3.5rem)] leading-none font-light tracking-[-0.03em]">
+      This page doesn't exist
+    </h1>
+    <p class="mt-4 max-w-[46ch] text-lg text-slate">
+      The link may be out of date. Head back to the home page or browse the blog.
+    </p>
+    <div class="mt-8 flex gap-5">
+      <a href="/" class="font-medium border-b border-ink pb-1">Go to the home page</a>
+      <a href="/blog/" class="font-medium border-b border-ink pb-1">Browse the blog</a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,99 @@
+@import "tailwindcss";
+@import "@fontsource-variable/dm-sans";
+
+/* Design tokens: black and white only. */
+:root {
+  --paper: #000000;
+  --ink: #ffffff;
+  --slate: #8c8c8c;
+  --line: #1f1f1f;
+  --surface: #111111;
+  --tile: #141414;
+  --tile-rest: #333333;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-slate: var(--slate);
+  --color-line: var(--line);
+  --color-surface: var(--surface);
+  --font-sans: "DM Sans Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    background: var(--paper);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply font-sans font-light;
+    overflow-x: clip;
+  }
+  ::selection {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  :focus-visible {
+    outline: 1px solid var(--ink);
+    outline-offset: 4px;
+  }
+}
+
+/* Break a section out of the centred page container to span the full viewport width. */
+.full-bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
+/* Long-form reading styles for blog posts */
+.prose {
+  font-size: 1.125rem;
+  line-height: 1.75;
+  font-weight: 300;
+  max-width: 64ch;
+}
+.prose > * + * { margin-top: 1.4em; }
+.prose h2, .prose h3 {
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  margin-top: 2.4em;
+}
+.prose h2 { font-size: 1.5rem; }
+.prose h3 { font-size: 1.2rem; }
+.prose strong { font-weight: 500; }
+.prose a {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--slate);
+}
+.prose a:hover { text-decoration-color: var(--ink); }
+.prose ul, .prose ol { padding-left: 1.4em; }
+.prose ul { list-style: square; }
+.prose ol { list-style: decimal; }
+.prose li + li { margin-top: 0.4em; }
+.prose li::marker { color: var(--slate); }
+.prose blockquote {
+  border-left: 1px solid var(--ink);
+  padding-left: 1.25em;
+  color: var(--slate);
+}
+.prose code {
+  font-size: 0.85em;
+  background: var(--surface);
+  padding: 0.1em 0.35em;
+}
+.prose pre {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  padding: 1.1em 1.25em;
+  border: 1px solid var(--line);
+  overflow-x: auto;
+}
+.prose pre code { background: none; padding: 0; }
+.prose hr { border-color: var(--line); }

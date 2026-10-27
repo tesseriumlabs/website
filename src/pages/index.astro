@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Mosaic from '../components/Mosaic.astro';
+import PostList from '../components/PostList.astro';
+import { getPosts } from '../lib';
+
+// The blog link and the latest posts section only appear once a post is published.
+const posts = (await getPosts()).slice(0, 3);
+---
+
+<BaseLayout>
+  <section class="full-bleed relative isolate flex min-h-[min(78vh,760px)] touch-pan-y items-center overflow-hidden">
+    <Mosaic />
+    <div class="relative mx-auto flex w-full max-w-6xl flex-col items-center px-4 py-24 text-center mix-blend-difference sm:px-8">
+      <h1 class="max-w-[14ch] text-[clamp(2.5rem,6.5vw,4.75rem)] leading-[1.02] font-light tracking-[-0.035em] text-balance">
+        Software that fits your business
+      </h1>
+      <p class="mt-6 text-[clamp(1.25rem,2.4vw,1.75rem)] leading-snug font-light tracking-[-0.015em]">
+        The missing piece of your enterprise
+      </p>
+      <p class="mt-6 max-w-[40ch] text-lg leading-relaxed text-slate">
+        We are an experienced studio designing and building focused software products.
+      </p>
+      {
+        posts.length > 0 && (
+          <div class="mt-12 text-[0.95rem]">
+            <a href="/blog/" class="border-b border-ink pb-1 transition-opacity hover:opacity-70">
+              Read the blog
+            </a>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  {
+    posts.length > 0 && (
+      <section aria-labelledby="latest" class="mt-24">
+        <div class="mb-8 flex items-baseline justify-between gap-4">
+          <h2 id="latest" class="text-xl font-light tracking-tight">Latest posts</h2>
+          <a href="/blog/" class="text-sm text-slate hover:text-ink">All posts</a>
+        </div>
+        <PostList posts={posts} />
+      </section>
+    )
+  }
+</BaseLayout>
